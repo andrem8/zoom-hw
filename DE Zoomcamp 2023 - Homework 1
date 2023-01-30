@@ -1,0 +1,36 @@
+select count(*)
+from green_taxi_trips
+where (lpep_pickup_datetime > '2019-01-15' and lpep_pickup_datetime < '2019-01-16')
+limit 5
+
+
+with xx as (select --lpep_pickup_datetime::timestamp - lpep_dropoff_datetime::timestamp as difference,
+        EXTRACT(EPOCH FROM (lpep_pickup_datetime::timestamp - lpep_dropoff_datetime::timestamp))::numeric AS difference,
+       *
+from green_taxi_trips)
+
+select date_trunc('day',lpep_pickup_datetime::timestamp),max(trip_distance)
+from xx
+where lpep_pickup_datetime > '2019-01-09' and lpep_pickup_datetime < '2019-01-30'
+group by 1
+--limit 10
+
+select passenger_count,count(*)
+from green_taxi_trips
+where passenger_count in (2,3) and date_trunc('day',lpep_pickup_datetime::timestamp) = '2019-01-01'
+group by 1
+
+select *
+from taxi_zone_lookup
+where "Zone" = 'Astoria'
+limit 10
+
+with xx as (select "DOLocationID",max(tip_amount)
+from green_taxi_trips
+where "PULocationID" = 7
+group by 1)
+
+select "Zone",xx.*
+from xx
+join taxi_zone_lookup
+on "LocationID" = xx."DOLocationID"
